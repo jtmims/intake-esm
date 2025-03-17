@@ -42,7 +42,7 @@ def _get_xarray_open_kwargs(data_format, xarray_open_kwargs=None, storage_option
     return xarray_open_kwargs
 
 
-@dask.delayed
+#@dask.delayed
 def _open_dataset(
     urlpath,
     varname,
