@@ -2,6 +2,7 @@ import typing
 import warnings
 
 import dask
+import threading
 import fsspec
 import pandas as pd
 import pydantic
@@ -42,6 +43,7 @@ def _get_xarray_open_kwargs(data_format, xarray_open_kwargs=None, storage_option
 
     return xarray_open_kwargs
 
+xr_file_lock = threading.RLock()
 
 @dask.delayed
 def _open_dataset(
@@ -59,7 +61,6 @@ def _open_dataset(
     storage_options = storage_options or xarray_open_kwargs.get('backend_kwargs', {}).get(
         'storage_options', {}
     )
-
     # Support kerchunk datasets, setting the file object (fo) and urlpath
     if data_format == 'reference':
         xarray_open_kwargs['backend_kwargs']['storage_options']['fo'] = urlpath
@@ -80,9 +81,10 @@ def _open_dataset(
         xarray_open_kwargs.update(parallel=True)
         ds = xr.open_mfdataset(url, **xarray_open_kwargs)
     else:
-        ds = xr.open_dataset(url, **xarray_open_kwargs)
-        if preprocess is not None:
-            ds = preprocess(ds)
+        with xr_file_lock:
+            ds = xr.open_dataset(url, **xarray_open_kwargs)
+            if preprocess is not None:
+                ds = preprocess(ds)
 
     if varname and isinstance(varname, str):
         varname = [varname]
