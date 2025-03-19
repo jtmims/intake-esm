@@ -20,11 +20,11 @@
     license = { text = "Apache Software License 2.0" }
     maintainers = [{ name = "NCAR XDev Team", email = "xdev@ucar.edu" }]
     name = "intake-esm"
+    version = "2025.2.3"
     readme = "README.md"
     requires-python = ">=3.10"
 
     dynamic = ["dependencies"]
-    version = "2025.2.3"
 
 [tool.setuptools.dynamic]
 
